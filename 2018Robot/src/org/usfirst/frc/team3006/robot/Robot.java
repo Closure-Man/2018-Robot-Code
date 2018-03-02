@@ -12,6 +12,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SampleRobot;
@@ -100,8 +101,8 @@ public class Robot extends SampleRobot {
 		vals = table.getEntry("dir");
 		
 		
-		leftAI = new AnalogInput(0);
-		rightAI = new AnalogInput(1);
+		leftAI = new AnalogInput(1);
+		rightAI = new AnalogInput(0);
 		
 	}
 	
@@ -109,7 +110,7 @@ public class Robot extends SampleRobot {
 	
 	@Override
 	public void autonomous() {
-		/*String gameData;
+		String gameData;
 		gameData = DriverStation.getInstance().getGameSpecificMessage();
 		if(gameData.length() > 0)
 		{
@@ -132,17 +133,17 @@ public class Robot extends SampleRobot {
 					
 					Move(0.25, -0.25);
 					Timer.delay(40);
-
-					prox = true;
 				}
-				else if(rightAI.getVoltage() > 4.5 && leftAI.getVoltage() > 4.5)
+				else if(rightAI.getVoltage() >= 4.5 && leftAI.getVoltage() >= 4.5)
 				{
-					Move(-0.25, 0.25);
-					Timer.delay(20);
-					Move(1,1);
-					Timer.delay(100);
+					Move(0.25, 0.25);
+					Timer.delay(1);
 					Move(0.25, -0.25);
-					Timer.delay(20);
+					Timer.delay(0.25);
+					Move(0.25, 0.25);
+					Timer.delay(1);
+					Move(-0.25, 0.25);
+					Timer.delay(0.25);
 				}
 			}
 			else if(gameData.charAt(0) == 'R')
@@ -163,32 +164,21 @@ public class Robot extends SampleRobot {
 					Timer.delay(200);
 					
 					Move(-0.25, 0.25);
-					Timer.delay(40);
-					
-					prox = true;
-					
+					Timer.delay(40);				
 				}
-				else if(rightAI.getVoltage() > 4.5 && leftAI.getVoltage() > 4.5)
+				else if(rightAI.getVoltage() >= 4.5 && leftAI.getVoltage() >= 4.5)
 				{
-					Move(0.25, -0.25);
-					Timer.delay(20);
-					Move(1,1);
-					Timer.delay(100);
+					Move(0.25, 0.25);
+					Timer.delay(1);
 					Move(-0.25, 0.25);
-					Timer.delay(20);
+					Timer.delay(0.25);
+					Move(0.25, 0.25);
+					Timer.delay(1);
+					Move(0.25, -0.25);
+					Timer.delay(0.25);
 				}
 			}
 		}
-		
-		if(prox)
-		{
-			//proximity sensing
-		}
-		else
-		{
-			//vision tracking
-			
-		}*/
 		boolean running = true;
 		double timer = 0;
 		led.set(1);		
@@ -196,11 +186,11 @@ public class Robot extends SampleRobot {
 		while(running && isEnabled())
 		{
 			NetworkTableValue value = vals.getValue();
-			/*if(timer > 14)
+			if(timer > 6)
 			{
 				vals.setValue(new String("t"));
 				running = false;
-			}*/
+			}
 			if(value.equals(forward.getValue()))
 			{
 				Move(-0.5, -0.5);
@@ -217,9 +207,15 @@ public class Robot extends SampleRobot {
 			Timer.delay(0.005);
 			timer += 0.005;
 		}
+		lifter.set(-1);
+		Timer.delay(0.5);
+		lifter.set(0);
+		
+		intake.set(-1);
+		Timer.delay(1);
+		intake.set(0);
 				
 		led.set(0);
-
 	}
 
 	
@@ -241,21 +237,18 @@ public class Robot extends SampleRobot {
 				motorrightvalue = 0;
 			}
 			
-			if(Math.signum(motorleftvalue) * -1 == Math.signum(motorrightvalue) || pilotone.getRawButton(ltriggerone))
+			if(Math.signum(motorleftvalue) * -1 == Math.signum(motorrightvalue) || !pilotone.getRawButton(ltriggerone))
 			{
 				motorleftvalue *= 0.6;
 				motorrightvalue *= 0.6;
-				if(!pilotone.getRawButton(ybuttonone))
-				{
-					turning = true;
-				}
 			}
 			
-			if(pilotone.getRawButton(ybuttonone))
+			if(pilotone.getRawButton(ltriggerone))
 			{
-				motorleftvalue = -0.4;
-				motorrightvalue = -0.4;
+				motorleftvalue *= 0.5;
+				motorrightvalue *= 0.5;
 			}
+
 			
 			/*if(!turning)
 			{
